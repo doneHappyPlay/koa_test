@@ -15,9 +15,7 @@ export default {
   // layout:'app',
   async mounted(){
 
-    // let ret = await this.$axios.get('/api/demoinfo')
-    let ret = await this.$http.get('/demoinfo')
-    console.log(ret.data)
+
   },
   components: {
     Logo

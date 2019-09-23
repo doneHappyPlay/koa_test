@@ -3,6 +3,14 @@ let md5 = require('md5')
 const BaseController = require('./base')
 
 class UserController extends BaseController {
+
+  // @测试
+  async detail(){
+    // 只有token怎么获取详情
+    const {ctx} = this
+    const user = await this.checkEmail(ctx.state.email)
+    this.success(user)
+  }
   async index() {
     const { ctx } = this;
     ctx.body = '用户信息';
@@ -10,6 +18,34 @@ class UserController extends BaseController {
   async checkEmail(email){
     const user = await this.ctx.model.User.findOne({email})
     return user
+  }
+  async login(){
+      // jwt大家之前都已经学习过了
+      const {ctx, app} = this
+      const {email , password} = ctx.request.body
+      // 查询一下用户存在部
+      // 先查用户名
+      // 再差密码
+      let user = await ctx.model.User.findOne({
+        email,
+        password: md5(password)
+      })
+      if(user){
+        // 生成token返回
+        const {nickname }= user
+        const token = app.jwt.sign({
+          nickname,
+          email,
+          id:user._id
+        }, app.config.jwt.secret,{
+          expiresIn:'1h'
+          // expiresIn:'60s'
+        })
+        this.success({token,email})
+
+      }else{
+        this.error('用户名或者密码错误')
+      }
   }
   async create(){
     const {ctx} = this
